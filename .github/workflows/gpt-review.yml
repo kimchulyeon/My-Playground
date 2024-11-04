@@ -1,0 +1,32 @@
+name: GPT Review PR
+
+on:
+  pull_request:
+    types: [opened, synchronize] # PR이 생성되거나 업데이트될 때 실행
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.x"
+
+      - name: Install gpt-review
+        run: |
+          pip install gpt-review
+
+      - name: Run GPT Review
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }} # OpenAI API 키
+          GITHUB_ACCESS_TOKEN: ${{ secrets.MY_TOKEN }} # GitHub 토큰
+        run: |
+          gpt github review \
+            --access-token $GITHUB_ACCESS_TOKEN \
+            --pull-request ${{ github.event.pull_request.number }} \
+            --repository ${{ github.repository }}
