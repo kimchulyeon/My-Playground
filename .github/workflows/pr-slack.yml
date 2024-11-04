@@ -1,0 +1,23 @@
+name: Notify Slack on Pull Request
+
+on:
+  pull_request:
+    types: [opened] # PR이 새로 생성될 때만 트리거됨
+
+jobs:
+  notify-slack:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.MY_TOKEN }}
+
+      - name: Send notification to Slack
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+          --data '{"text":"📢 ${{ github.event.pull_request.title }} 관련 PR이 열렸어요.\n🙋 작성자: ${{ github.event.pull_request.user.login }}\n🙇‍♂️ <@U07UR63D65R>님 확인부탁드립니다!\n🌐 <${{ github.event.pull_request.html_url }}|PR 링크>", "username": "GitHub Bot"}' \
+          $SLACK_WEBHOOK_URL
